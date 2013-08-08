@@ -21,11 +21,12 @@ namespace PingPong.ViewModels
         private ClientFactory<IPing> _pingClientFactory;
         private Client<IPing> _pingClient;
         private IObservable<PongEventArgs> _pongs;
+        private readonly PingerPingCommand _pingCommand;
 
         public PingerViewModel()
         {
             Pinger = new Pinger(true);
-            PingCommand = new PingerPingCommand(this);
+            _pingCommand = new PingerPingCommand(this);
 
             InitPongService();
         }
@@ -53,24 +54,28 @@ namespace PingPong.ViewModels
                     return false;
                 return Pinger.CanPing;
             }
+            private set
+            {
+                Pinger.CanPing = value;
+                OnPropertyChanged("CanPing");
+                _pingCommand.OnCanExecuteChanged();
+            }
         }
 
         public void Ping()
         {
             _pingClient.Channel.Ping();
-            Pinger.CanPing = false;
-            OnPropertyChanged("CanPing");
+            CanPing = false;
         }
 
         protected virtual void OnPong(PongEventArgs e)
         {
-            Pinger.CanPing = true;
-            OnPropertyChanged("CanPing");
+            CanPing = true;
         }
 
         public Pinger Pinger { get; private set; }
 
-        public ICommand PingCommand { get; private set; }
+        public ICommand PingCommand { get { return _pingCommand; } }
 
         #region INotifyPropertyChanged Members
 

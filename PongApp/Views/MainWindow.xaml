@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <Button Content="Pong" Height="23" HorizontalAlignment="Left" Margin="10,10,0,0" Name="PongBtn" VerticalAlignment="Top" Width="75" AutomationProperties.AutomationId="Pong" IsEnabled="{Binding CanPong}" Command="{Binding PongCommand}" />
+        <Button Content="Pong" Height="23" HorizontalAlignment="Left" Margin="10,10,0,0" Name="PongBtn" VerticalAlignment="Top" Width="75" AutomationProperties.AutomationId="Pong"
+                Command="{Binding PongCommand}" />
     </Grid>
 </Window>

@@ -4,7 +4,6 @@
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Button Content="Ping" Height="23" HorizontalAlignment="Left" Margin="10,10,0,0" Name="PingBtn" VerticalAlignment="Top" Width="75" AutomationProperties.AutomationId="Ping" 
-                IsEnabled="{Binding CanPing}" 
                 Command="{Binding PingCommand}" />
     </Grid>
 </Window>
