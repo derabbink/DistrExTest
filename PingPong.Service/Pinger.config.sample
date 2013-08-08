@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- The Pinger calls Ping() on the Ponger, and hosts the IPong service -->
+<configuration>
+  <system.serviceModel>
+    <service name="PingPong.Service.Pong.PongService" behaviorConfiguration="PongBehavior">
+      <host>
+        <baseAddress>
+          <add baseAddress="http://localhost:8000/pong" />
+          <!-- run cmd as admin for permissions `netsh http add urlacl url=http://+:8000/pong user=yourlocaluser` -->
+        </baseAddress>
+      </host>
+      <!-- endpoint is exposed at address http://localhost:8000/pong -->
+      <endpoint address="" binding="wsHttpBinding" contract="PingPong.Contracts.Service.IPong" />
+    </service>
+    <!-- For debugging purposes set the includeExceptionDetailInFaults attribute to true -->
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="PongBehavior">
+          <serviceMetadata httpGetEnabled="True"/>
+          <serviceDebug includeExceptionDetailInFaults="True"/>
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+
+    <client>
+      <endpoint name="Ping" address="http://localhost:8000/ping" binding="wsHttpBinding" contract="PingPong.Contracts.Service.IPing" />
+    </client>
+  </system.serviceModel>
+</configuration>
