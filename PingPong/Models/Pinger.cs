@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using PingPong.Annotations;
-
-namespace PingPong.Models
+﻿namespace PingPong.Models
 {
     public class Pinger
     {

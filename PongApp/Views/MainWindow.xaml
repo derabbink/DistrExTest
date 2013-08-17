@@ -1,7 +1,8 @@
 ﻿<Window x:Class="PongApp.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="PongApp" Height="350" Width="525"
+        Uid="PongApp">
     <Grid>
         <Button Content="Pong" Height="23" HorizontalAlignment="Left" Margin="10,10,0,0" Name="PongBtn" VerticalAlignment="Top" Width="75" AutomationProperties.AutomationId="Pong"
                 Command="{Binding PongCommand}" />

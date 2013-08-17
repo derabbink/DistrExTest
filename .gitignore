@@ -148,3 +148,16 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+*.manifest
+*.vshost.exe
+
+# compiled assemblies
+workers/*/*.dll
+workers/*/*.exe
+workers/*/*.vshost.exe.config
+lib/
+
+# temporary folders
+workers/*/transferred/
+workers/*/cached/
+workers/*/*.xml
