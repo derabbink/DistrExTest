@@ -48,9 +48,11 @@ namespace PingPongTest
 
         private static AutomatedApplication Start(string applicationPath, string processName)
         {
+            var psi = new ProcessStartInfo(applicationPath + "\\" + processName);
+            psi.WorkingDirectory = applicationPath;
             var application = new OutOfProcessApplication(new OutOfProcessApplicationSettings
             {
-                ProcessStartInfo = new ProcessStartInfo(applicationPath + "\\" + processName),
+                ProcessStartInfo = psi,
                 ApplicationImplementationFactory = new UIAutomationOutOfProcessApplicationFactory()
             });
 
