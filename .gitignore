@@ -161,3 +161,4 @@ lib/
 workers/*/transferred/
 workers/*/cached/
 workers/*/*.xml
+workers/*/*.txt

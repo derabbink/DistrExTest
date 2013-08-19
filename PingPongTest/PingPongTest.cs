@@ -22,17 +22,23 @@ namespace PingPongTest
         private AutomatedApplication _onWorkerOneProcess;
         private AutomatedApplication _onWorkerTwoProcess;
 
-        private const string WorkerService = "DistrEx.Worker.Host.exe"; 
+        private const string WorkerService = "DistrEx.Worker.Host.exe";
+        private string pingPath;
+        private string pongPath; 
 
         [TestFixtureSetUp]
         public void FixtureSetUp()
         {
+            pingPath = GetPathFromConfig("PingApp-exe-file");
+            pongPath = GetPathFromConfig("PongApp-exe-file");
+
+            //Start the applications ..
+            //ToDo Should be started from the workers
+            Start(pingPath, "PingApp.exe");
+            Start(pongPath, "PongApp.exe");
+
             _onWorkerOneProcess = Start(GetPathFromConfig("PingApp-worker-exe-file"), WorkerService);
             _onWorkerTwoProcess = Start(GetPathFromConfig("PongApp-worker-exe-file"), WorkerService);
-
-            //Start the applications here 
-            Start(GetPathFromConfig("PingApp-exe-file"), "PingApp.exe");
-            Start(GetPathFromConfig("PongApp-exe-file"), "PongApp.exe");
 
             var _pingCallBackHandler = new ExecutorCallbackService();
             var _pongCallBackHandler = new ExecutorCallbackService();
@@ -48,8 +54,10 @@ namespace PingPongTest
 
         private static AutomatedApplication Start(string applicationPath, string processName)
         {
-            var psi = new ProcessStartInfo(applicationPath + "\\" + processName);
-            psi.WorkingDirectory = applicationPath;
+            var psi = new ProcessStartInfo(applicationPath + "\\" + processName)
+            {
+                WorkingDirectory = applicationPath
+            };
             var application = new OutOfProcessApplication(new OutOfProcessApplicationSettings
             {
                 ProcessStartInfo = psi,
@@ -66,28 +74,33 @@ namespace PingPongTest
         [Test]
         public void Test()
         {
-            Instruction<string, bool> invokePing = (ct, rp, arg) =>
+            Instruction<string, bool> openPongApp = (token, progress, argument) =>
+            {
+                Process.Start(pongPath +  "\\PongApp.exe");
+                return true; 
+            };
+
+           Instruction<string, bool> invokePing = (ct, rp, arg) =>
             {
                 var mainWindow = AutomationElement.RootElement.WaitForFirstChild(arg);
                 var pingButton = mainWindow.WaitForFirstChild("Ping");
                 pingButton.Invoke();
-                Thread.Sleep(2000);
-                return !(pingButton.Current.IsEnabled); 
-            };
-            var result1 = Coordinator.Do(_onWorkerOne.Do(invokePing), "PingApp").ResultValue; 
-            Assert.IsTrue(result1);
-
-            Instruction<string, bool> invokePong = (ct, rp, arg) =>
-            {
-                var mainWindow = AutomationElement.RootElement.WaitForFirstChild(arg);
-                var pongButton = mainWindow.WaitForFirstChild("Pong");
-                pongButton.Invoke();
-                Thread.Sleep(2000);
-                return !(pongButton.Current.IsEnabled); 
+                return true; 
             };
 
-            var result2 = Coordinator.Do(_onWorkerTwo.Do(invokePong), "PongApp").ResultValue;
-            Assert.IsTrue(result2);
+           Instruction<bool, string> invokePong = (ct, rp, arg) =>
+           {
+               var mainWindow = AutomationElement.RootElement.WaitForFirstChild("PongApp");
+               var pongButton = mainWindow.WaitForFirstChild("Pong");
+               pongButton.Invoke();
+               return "Ponged";
+           };
+
+           for (int i = 0; i < 10; i++)
+           {
+               var result = Coordinator.Do(_onWorkerOne.Do(invokePing), "PingApp").ThenDo(_onWorkerTwo.Do(invokePong)).ResultValue;
+               Assert.AreEqual(result, "Ponged");
+           }
         }
 
         [TestFixtureTearDown]
