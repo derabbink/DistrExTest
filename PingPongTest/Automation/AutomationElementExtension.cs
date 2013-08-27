@@ -32,5 +32,10 @@ namespace PingPongTest
         {
             return (InvokePattern)element.GetCurrentPattern(InvokePattern.Pattern);
         }
+
+        public static bool IsEnabled(this AutomationElement element)
+        {
+            return (bool)element.GetCurrentPropertyValue(AutomationElement.IsEnabledProperty);
+        }
      }
 }
