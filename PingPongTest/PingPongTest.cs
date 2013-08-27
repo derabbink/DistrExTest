@@ -10,6 +10,7 @@ using System.Configuration;
 using Microsoft.Test.ApplicationControl;
 using NUnit.Framework;
 using System.Windows.Automation;
+using Coordinator = DistrEx.Coordinator.Coordinator;
 
 namespace PingPongTest
 {
@@ -29,14 +30,6 @@ namespace PingPongTest
         [TestFixtureSetUp]
         public void FixtureSetUp()
         {
-            pingPath = GetPathFromConfig("PingApp-exe-file");
-            pongPath = GetPathFromConfig("PongApp-exe-file");
-
-            //Start the applications ..
-            //ToDo Should be started from the workers
-            Start(pingPath, "PingApp.exe");
-            Start(pongPath, "PongApp.exe");
-
             _onWorkerOneProcess = Start(GetPathFromConfig("PingApp-worker-exe-file"), WorkerService);
             _onWorkerTwoProcess = Start(GetPathFromConfig("PongApp-worker-exe-file"), WorkerService);
 
@@ -45,8 +38,23 @@ namespace PingPongTest
 
             _onWorkerOne = OnWorker.FromEndpointConfigNames("PingApp-AssemblyManager", "PingApp-Executor", _pingCallBackHandler);
             _onWorkerTwo = OnWorker.FromEndpointConfigNames("PongApp-AssemblyManager", "PongApp-Executor", _pongCallBackHandler);
-        }
+            
+            Instruction<Tuple<string, string>, bool> openApp1 = (ct, rp, args) => openApp(ct,rp, args.Item1);
+            Instruction<Tuple<string, string>, bool> openApp2 = (ct, rp, args) => openApp(ct,rp, args.Item2);
 
+            pingPath = GetPathFromConfig("PingApp-exe-file");
+            pongPath = GetPathFromConfig("PongApp-exe-file");
+
+            var tuple = new Tuple<string, string>(pingPath + @"\PingApp.exe", pongPath + @"\PongApp.exe");
+            DistrEx.Coordinator.Coordinator.Do(_onWorkerOne.Do(openApp1), _onWorkerTwo.Do(openApp2), tuple);
+        }
+        
+        private static bool openApp(CancellationToken token, Action progress, string argument)
+        {
+                Process.Start(argument);
+                return true;
+        }
+        
         private static string GetPathFromConfig(string key)
         {
             return Path.GetFullPath(Path.GetDirectoryName(ConfigurationManager.AppSettings.Get(key)));
@@ -74,33 +82,28 @@ namespace PingPongTest
         [Test]
         public void Test()
         {
-            Instruction<string, bool> openPongApp = (token, progress, argument) =>
-            {
-                Process.Start(pongPath +  "\\PongApp.exe");
-                return true; 
-            };
-
-           Instruction<string, bool> invokePing = (ct, rp, arg) =>
+            Instruction<string, string> invokePing = (ct, rp, arg) =>
             {
                 var mainWindow = AutomationElement.RootElement.WaitForFirstChild(arg);
                 var pingButton = mainWindow.WaitForFirstChild("Ping");
                 pingButton.Invoke();
-                return true; 
+                return "Pinged"; 
             };
 
-           Instruction<bool, string> invokePong = (ct, rp, arg) =>
-           {
-               var mainWindow = AutomationElement.RootElement.WaitForFirstChild("PongApp");
-               var pongButton = mainWindow.WaitForFirstChild("Pong");
-               pongButton.Invoke();
-               return "Ponged";
-           };
+            Instruction<string, Tuple<string, string>> invokePong = (ct, rp, arg) =>
+            {
+                var mainWindow = AutomationElement.RootElement.WaitForFirstChild("PongApp");
+                var pongButton = mainWindow.WaitForFirstChild("Pong");
+                pongButton.Invoke();
+                return new Tuple<string, string>(arg, "Ponged");
+            };
 
-           for (int i = 0; i < 10; i++)
-           {
-               var result = Coordinator.Do(_onWorkerOne.Do(invokePing), "PingApp").ThenDo(_onWorkerTwo.Do(invokePong)).ResultValue;
-               Assert.AreEqual(result, "Ponged");
-           }
+            for (int i = 0; i < 10; i++)
+            {
+                var result = Coordinator.Do(_onWorkerOne.Do(invokePing), "PingApp").ThenDo(_onWorkerTwo.Do(invokePong)).ResultValue;
+                var expectedResult = new Tuple<string, string>("Pinged", "Ponged");
+                Assert.AreEqual(result, expectedResult);
+            }
         }
 
         [TestFixtureTearDown]
