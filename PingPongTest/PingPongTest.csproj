@@ -79,10 +79,6 @@
     <Reference Include="DistrEx.Common">
       <HintPath>..\lib\DistrEx.Common.dll</HintPath>
     </Reference>
-    <Reference Include="DistrEx.Common.Logger, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\DistrEx.Common.Logger.dll</HintPath>
-    </Reference>
     <Reference Include="DistrEx.Communication.Contracts">
       <HintPath>..\lib\DistrEx.Communication.Contracts.dll</HintPath>
     </Reference>
@@ -94,6 +90,10 @@
     </Reference>
     <Reference Include="DistrEx.Coordinator.Interface">
       <HintPath>..\lib\DistrEx.Coordinator.Interface.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>

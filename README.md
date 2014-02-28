@@ -31,6 +31,7 @@ From you compiled DistrEx, copy *all* the DLLs from the [DistrEx.Worker.Host][wo
 * Sytsem.Reactive.Core.dll
 * System.Reactive.Intefaces.dll
 * DependencyResolver.dll
+* log4net.dll
 
 [distrex]: https://github.com/derabbink/DistrEx
 [worker-host]: https://github.com/derabbink/DistrEx/tree/master/DistrEx.Worker.Host
